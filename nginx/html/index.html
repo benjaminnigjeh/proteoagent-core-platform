@@ -229,11 +229,6 @@
         <option value="claude">Claude (Anthropic)</option>
       </select>
 
-      <div id="api-key-row" style="display:none">
-        <label for="api-key-input">Anthropic API key</label>
-        <input id="api-key-input" type="password" placeholder="sk-ant-…" autocomplete="off" />
-      </div>
-
       <label for="prompt-input">User prompt</label>
       <textarea id="prompt-input" placeholder="Describe your proteomics task…&#10;e.g. Deconvolve the attached m/z CSV and run proteoform identification."></textarea>
 
@@ -278,8 +273,6 @@
   const runSpinner    = document.getElementById('run-spinner');
   const sessionsList  = document.getElementById('sessions-list');
   const llmSelect     = document.getElementById('llm-select');
-  const apiKeyRow     = document.getElementById('api-key-row');
-  const apiKeyInput   = document.getElementById('api-key-input');
   const healthDot     = document.getElementById('health-dot');
   const healthLabel   = document.getElementById('health-label');
   const emptyState    = document.getElementById('empty-state');
@@ -299,11 +292,6 @@
   }
   checkHealth();
   setInterval(checkHealth, 30_000);
-
-  /* ── LLM selector ───────────────────────────────────────────────────────── */
-  llmSelect.addEventListener('change', () => {
-    apiKeyRow.style.display = llmSelect.value === 'claude' ? 'block' : 'none';
-  });
 
   /* ── Session management ──────────────────────────────────────────────────── */
   function createSession() {
@@ -437,10 +425,9 @@
 
     try {
       const body = {
-        session_id:        sid,
-        user_input:        text,
-        llm_choice:        llmSelect.value,
-        anthropic_api_key: llmSelect.value === 'claude' ? apiKeyInput.value || null : null,
+        session_id: sid,
+        user_input: text,
+        llm_choice: llmSelect.value,
       };
 
       const res = await fetch('/api/run', {
