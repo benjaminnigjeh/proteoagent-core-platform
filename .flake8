@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 120
+# E221: multiple spaces before operator (intentional alignment in dicts/assignments)
+extend-ignore = E221
+exclude = .venv,__pycache__
+# flask_app.py has an inline HTML/JS template with unavoidably long lines
+per-file-ignores =
+    flask_app.py:E501

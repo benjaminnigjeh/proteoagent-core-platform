@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Environment / secrets
+.env
+.env.*
+*.env
+!.env.example
+
+# Database (persisted session data — not for VCS)
+sessions.db
+
+# Generated outputs
+audit_report.pdf
+session_*.pdf
+_gen_audit_pdf.py
+
+# Audit prompt assets
+combined-audit-prompts.zip
+combined-audit-prompts/
+
+# Docker
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Temp extraction files
+extracted_info.txt
+agents_info.txt
+
+# Zip uploads
+v0.zip

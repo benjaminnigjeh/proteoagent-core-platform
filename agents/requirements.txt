@@ -1,0 +1,8 @@
+# ProteoAgent Core Platform — agents service
+fastapi>=0.115
+uvicorn[standard]>=0.32
+python-dotenv>=1.0
+langchain-core>=0.3
+langchain-anthropic>=0.3
+langchain-ollama>=0.2
+fpdf2>=2.7

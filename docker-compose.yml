@@ -1,0 +1,61 @@
+services:
+
+  # ── Nginx — static UI + reverse proxy ─────────────────────────────────────
+  nginx:
+    build:
+      context: ./nginx
+    image: ${DOCKERHUB_USERNAME:-benjaminnourinigjeh}/proteoagent-nginx:${IMAGE_TAG:-latest}
+    ports:
+      - "80:80"
+    depends_on:
+      agents:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - frontend
+      - backend
+
+  # ── FastAPI agents service ─────────────────────────────────────────────────
+  agents:
+    build:
+      context: ./agents
+    image: ${DOCKERHUB_USERNAME:-benjaminnourinigjeh}/proteoagent-agents:${IMAGE_TAG:-latest}
+    expose:
+      - "8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - SESSION_DB_PATH=/data/sessions.db
+    volumes:
+      - session_data:/data
+    depends_on:
+      - ollama
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - backend
+
+  # ── Ollama local LLM ───────────────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    expose:
+      - "11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - backend
+
+volumes:
+  ollama_data:
+  session_data:
+
+networks:
+  frontend:
+  backend:
