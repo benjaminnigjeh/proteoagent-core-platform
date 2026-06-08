@@ -6,240 +6,121 @@
   <title>ProteoAgent Core Platform</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:        #0d1117;
-      --surface:   #161b22;
-      --border:    #30363d;
-      --accent:    #58a6ff;
-      --accent2:   #3fb950;
-      --warn:      #d29922;
-      --danger:    #f85149;
-      --text:      #e6edf3;
-      --muted:     #8b949e;
-      --radius:    8px;
-      --font-mono: "JetBrains Mono", "Fira Code", monospace;
+      --bg:      #0d1117; --surface: #161b22; --surface2: #1c2128;
+      --border:  #30363d; --accent:  #58a6ff; --accent2: #3fb950;
+      --warn:    #d29922; --danger:  #f85149; --text:    #e6edf3;
+      --muted:   #8b949e; --radius:  8px;
+      --mono: "JetBrains Mono","Fira Code",monospace;
     }
+    body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    /* Header */
+    header { background:var(--surface); border-bottom:1px solid var(--border); padding:0 1.5rem; display:flex; align-items:center; justify-content:space-between; height:54px; flex-shrink:0; }
+    .logo  { display:flex; align-items:center; gap:.65rem; font-weight:700; font-size:1rem; }
+    .logo svg { width:24px; height:24px; }
+    .badge { font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:20px; background:var(--accent); color:var(--bg); text-transform:uppercase; letter-spacing:.05em; }
+    #health-dot { width:8px; height:8px; border-radius:50%; background:var(--muted); transition:background .3s; }
+    #health-dot.ok { background:var(--accent2); } #health-dot.error { background:var(--danger); }
 
-    /* ── Header ── */
-    header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 56px;
-      flex-shrink: 0;
-    }
-    .logo { display: flex; align-items: center; gap: .75rem; font-weight: 700; font-size: 1.05rem; }
-    .logo svg { width: 26px; height: 26px; }
-    .badge {
-      font-size: .65rem; font-weight: 600; padding: 2px 8px;
-      border-radius: 20px; background: var(--accent); color: var(--bg);
-      text-transform: uppercase; letter-spacing: .05em;
-    }
-    #health-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); transition: background .3s; }
-    #health-dot.ok    { background: var(--accent2); }
-    #health-dot.error { background: var(--danger); }
-
-    /* ── Root layout: sidebar | chat | routing panel ── */
-    main {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 300px 1fr 320px;
-      overflow: hidden;
-      height: calc(100vh - 56px);
-    }
+    /* Layout */
+    main { flex:1; display:grid; grid-template-columns:290px 1fr 310px; overflow:hidden; height:calc(100vh - 54px); }
 
     /* ── Left sidebar ── */
-    aside {
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .sidebar-section { padding: 1rem; border-bottom: 1px solid var(--border); }
-    .sidebar-section h3 { font-size: .7rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin-bottom: .75rem; }
+    aside { background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+    .sb-section { padding:.9rem; border-bottom:1px solid var(--border); }
+    .sb-section h3 { font-size:.68rem; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); margin-bottom:.7rem; }
+    label { display:block; font-size:.78rem; color:var(--muted); margin-bottom:.28rem; margin-top:.7rem; }
+    label:first-child { margin-top:0; }
+    input,textarea,select { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-size:.85rem; padding:.45rem .7rem; outline:none; transition:border-color .2s; }
+    input:focus,textarea:focus,select:focus { border-color:var(--accent); }
+    textarea { resize:vertical; min-height:105px; font-family:var(--mono); font-size:.78rem; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:.4rem; padding:.5rem 1.1rem; border-radius:var(--radius); font-size:.85rem; font-weight:600; border:none; cursor:pointer; transition:opacity .2s,transform .1s; }
+    .btn:hover { opacity:.85; } .btn:active { transform:scale(.97); } .btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+    .btn-primary   { background:var(--accent); color:var(--bg); width:100%; margin-top:.65rem; }
+    .btn-secondary { background:transparent; border:1px solid var(--border); color:var(--text); }
 
-    label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: .3rem; margin-top: .75rem; }
-    label:first-child { margin-top: 0; }
-    input, textarea, select {
-      width: 100%; background: var(--bg); border: 1px solid var(--border);
-      border-radius: var(--radius); color: var(--text); font-size: .875rem;
-      padding: .5rem .75rem; outline: none; transition: border-color .2s;
-    }
-    input:focus, textarea:focus, select:focus { border-color: var(--accent); }
-    textarea { resize: vertical; min-height: 110px; font-family: var(--font-mono); font-size: .8rem; }
-
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-      padding: .55rem 1.25rem; border-radius: var(--radius);
-      font-size: .875rem; font-weight: 600; border: none; cursor: pointer;
-      transition: opacity .2s, transform .1s;
-    }
-    .btn:hover  { opacity: .85; }
-    .btn:active { transform: scale(.97); }
-    .btn-primary   { background: var(--accent); color: var(--bg); width: 100%; margin-top: .75rem; }
-    .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .btn:disabled  { opacity: .45; cursor: not-allowed; transform: none; }
-
-    #sessions-list { flex: 1; overflow-y: auto; padding: .5rem; }
+    /* Session list */
+    #sessions-list { flex:1; overflow-y:auto; }
     .session-item {
-      padding: .45rem .75rem; border-radius: var(--radius); cursor: pointer;
-      font-size: .78rem; font-family: var(--font-mono); color: var(--muted);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      transition: background .15s;
+      display:flex; align-items:center; gap:.5rem;
+      padding:.55rem .75rem; cursor:pointer; border-bottom:1px solid rgba(48,54,61,.5);
+      transition:background .12s; position:relative;
     }
-    .session-item:hover  { background: var(--border); }
-    .session-item.active { background: rgba(88,166,255,.15); color: var(--accent); }
+    .session-item:hover { background:var(--surface2); }
+    .session-item.active { background:rgba(88,166,255,.1); border-left:2px solid var(--accent); padding-left:.55rem; }
+    .session-info { flex:1; min-width:0; }
+    .session-id   { font-size:.78rem; font-family:var(--mono); color:var(--text); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .session-meta { font-size:.68rem; color:var(--muted); display:flex; gap:.5rem; margin-top:.15rem; }
+    .session-preview { font-size:.7rem; color:var(--muted); margin-top:.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .pdf-btn {
+      flex-shrink:0; width:26px; height:26px; border-radius:6px;
+      background:transparent; border:1px solid var(--border); color:var(--muted);
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+      font-size:.8rem; transition:all .15s; opacity:0;
+    }
+    .session-item:hover .pdf-btn { opacity:1; }
+    .pdf-btn:hover { background:rgba(248,81,73,.15); border-color:var(--danger); color:var(--danger); }
+    .pdf-btn.loading { opacity:1; animation:spin .7s linear infinite; }
+    .sessions-footer { padding:.6rem; flex-shrink:0; }
 
-    /* ── Centre: chat ── */
-    .chat-panel {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      border-right: 1px solid var(--border);
-    }
-    .chat-panel-header {
-      padding: .75rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      font-size: .8rem;
-      color: var(--muted);
-      flex-shrink: 0;
-    }
-    #chat-log {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: .85rem;
-    }
+    /* ── Chat panel ── */
+    .chat-panel { display:flex; flex-direction:column; overflow:hidden; border-right:1px solid var(--border); }
+    .panel-header { padding:.6rem 1.1rem; border-bottom:1px solid var(--border); font-size:.72rem; color:var(--muted); flex-shrink:0; display:flex; align-items:center; justify-content:space-between; }
+    #chat-log { flex:1; overflow-y:auto; padding:1.1rem; display:flex; flex-direction:column; gap:.8rem; }
+    .msg { max-width:100%; }
+    .msg-label { font-size:.65rem; color:var(--muted); margin-bottom:.22rem; text-transform:uppercase; letter-spacing:.07em; }
+    .msg.user .msg-label { text-align:right; }
+    .msg-bubble { padding:.65rem .9rem; border-radius:var(--radius); font-size:.875rem; line-height:1.65; white-space:pre-wrap; word-break:break-word; }
+    .msg.user  .msg-bubble { background:rgba(88,166,255,.1); border:1px solid rgba(88,166,255,.22); text-align:right; }
+    .msg.agent .msg-bubble { background:var(--surface); border:1px solid var(--border); }
+    .msg.error .msg-bubble { background:rgba(248,81,73,.07); border:1px solid rgba(248,81,73,.22); color:var(--danger); }
+    .empty-state { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.55rem; color:var(--muted); text-align:center; }
+    .empty-state svg { width:38px; height:38px; opacity:.22; }
+    .empty-state p { font-size:.85rem; }
 
-    .msg { max-width: 100%; }
-    .msg-label { font-size: .68rem; color: var(--muted); margin-bottom: .25rem; text-transform: uppercase; letter-spacing: .07em; }
-    .msg.user .msg-label { text-align: right; }
-    .msg-bubble {
-      padding: .7rem 1rem; border-radius: var(--radius);
-      font-size: .875rem; line-height: 1.65; white-space: pre-wrap; word-break: break-word;
-    }
-    .msg.user .msg-bubble   { background: rgba(88,166,255,.12); border: 1px solid rgba(88,166,255,.25); text-align: right; }
-    .msg.agent .msg-bubble  { background: var(--surface); border: 1px solid var(--border); }
-    .msg.error .msg-bubble  { background: rgba(248,81,73,.07); border: 1px solid rgba(248,81,73,.25); color: var(--danger); }
-
-    /* ── Right: routing details panel ── */
-    .routing-panel {
-      background: var(--surface);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .routing-panel-header {
-      padding: .75rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      font-size: .7rem;
-      text-transform: uppercase;
-      letter-spacing: .09em;
-      color: var(--muted);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    #routing-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1rem;
-      font-family: var(--font-mono);
-      font-size: .78rem;
-    }
-
-    .rp-empty {
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted);
-      font-family: inherit;
-      font-size: .85rem;
-      text-align: center;
-      padding: 2rem;
-    }
-
-    .rp-section { margin-bottom: 1.1rem; }
-    .rp-label {
-      font-size: .65rem; text-transform: uppercase; letter-spacing: .1em;
-      color: var(--muted); margin-bottom: .4rem;
-    }
-    .rp-value { color: var(--text); line-height: 1.6; white-space: pre-wrap; }
-
-    .agent-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
-    .agent-chip {
-      padding: 3px 10px; border-radius: 20px; font-size: .72rem; font-weight: 600;
-      background: rgba(88,166,255,.12); border: 1px solid rgba(88,166,255,.3); color: var(--accent);
-    }
-    .agent-chip.parallel { background: rgba(210,153,34,.1); border-color: rgba(210,153,34,.3); color: var(--warn); }
-    .agent-chip.none { background: rgba(139,148,158,.1); border-color: var(--border); color: var(--muted); }
-
-    .qc-pass { color: var(--accent2); }
-    .qc-warn { color: var(--warn); }
-    .qc-item { margin-top: .3rem; }
-
-    .task-item { margin-bottom: .5rem; }
-    .task-agent { color: var(--accent); }
-    .task-desc { color: var(--text); margin-top: .15rem; padding-left: .75rem; border-left: 2px solid var(--border); }
-
-    hr.rp-divider { border: none; border-top: 1px solid var(--border); margin: .85rem 0; }
+    /* ── Routing panel ── */
+    .routing-panel { background:var(--surface); display:flex; flex-direction:column; overflow:hidden; }
+    #routing-body  { flex:1; overflow-y:auto; padding:.9rem; font-family:var(--mono); font-size:.76rem; }
+    .rp-empty  { height:100%; display:flex; align-items:center; justify-content:center; color:var(--muted); font-family:inherit; font-size:.82rem; text-align:center; padding:1.5rem; }
+    .rp-section { margin-bottom:1rem; }
+    .rp-label  { font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:.35rem; }
+    .rp-value  { color:var(--text); line-height:1.6; white-space:pre-wrap; }
+    .agent-chips { display:flex; flex-wrap:wrap; gap:.3rem; }
+    .agent-chip  { padding:2px 9px; border-radius:20px; font-size:.7rem; font-weight:600; background:rgba(88,166,255,.1); border:1px solid rgba(88,166,255,.28); color:var(--accent); }
+    .agent-chip.parallel { background:rgba(210,153,34,.08); border-color:rgba(210,153,34,.3); color:var(--warn); }
+    .agent-chip.none { background:transparent; border-color:var(--border); color:var(--muted); }
+    .qc-pass { color:var(--accent2); } .qc-warn { color:var(--warn); }
+    .qc-item { margin-top:.25rem; }
+    .task-item { margin-bottom:.45rem; }
+    .task-agent { color:var(--accent); }
+    .task-desc  { color:var(--text); margin-top:.12rem; padding-left:.65rem; border-left:2px solid var(--border); }
+    hr.rp-div { border:none; border-top:1px solid var(--border); margin:.75rem 0; }
 
     /* Spinner */
-    .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; display: none; }
-    .spinner.visible { display: block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width:14px; height:14px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; display:none; }
+    .spinner.visible { display:block; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
 
-    /* Empty state */
-    .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6rem; color: var(--muted); text-align: center; }
-    .empty-state svg { width: 40px; height: 40px; opacity: .25; }
-    .empty-state p { font-size: .85rem; }
-
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:transparent; } ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
   </style>
 </head>
 <body>
 
 <header>
   <div class="logo">
-    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="14" cy="14" r="13" stroke="#58a6ff" stroke-width="1.5"/>
-      <path d="M8 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/>
-      <circle cx="14" cy="18" r="2.5" fill="#58a6ff"/>
-      <path d="M11 18h-3M17 18h3" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/>
-    </svg>
-    ProteoAgent Core Platform
-    <span class="badge">v1</span>
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="#58a6ff" stroke-width="1.5"/><path d="M8 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="18" r="2.5" fill="#58a6ff"/><path d="M11 18h-3M17 18h3" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/></svg>
+    ProteoAgent Core Platform <span class="badge">v1</span>
   </div>
-  <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;color:var(--muted)">
-    <div id="health-dot"></div>
-    <span id="health-label">checking…</span>
+  <div style="display:flex;align-items:center;gap:.55rem;font-size:.78rem;color:var(--muted)">
+    <div id="health-dot"></div><span id="health-label">checking…</span>
   </div>
 </header>
 
 <main>
   <!-- ── Left sidebar ── -->
   <aside>
-    <div class="sidebar-section">
+    <div class="sb-section">
       <h3>Configuration</h3>
       <label for="llm-select">LLM backend</label>
       <select id="llm-select">
@@ -249,299 +130,331 @@
       <label for="prompt-input">User prompt</label>
       <textarea id="prompt-input" placeholder="Describe your proteomics task…&#10;e.g. Deconvolve the attached m/z CSV and run proteoform identification."></textarea>
       <button id="run-btn" class="btn btn-primary">
-        <span id="run-spinner" class="spinner"></span>
-        Submit
+        <span id="run-spinner" class="spinner"></span>Submit
       </button>
     </div>
-    <div class="sidebar-section" style="flex:1;overflow:hidden;display:flex;flex-direction:column;border-bottom:none;">
-      <h3 style="flex-shrink:0">Sessions</h3>
-      <div id="sessions-list"></div>
-      <div style="padding:.5rem;flex-shrink:0">
-        <button id="new-session-btn" class="btn btn-secondary" style="width:100%;font-size:.8rem">+ New session</button>
-      </div>
+
+    <div class="sb-section" style="padding:.65rem .9rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <h3 style="margin:0">Sessions</h3>
+      <span id="session-count" style="font-size:.68rem;color:var(--muted)"></span>
+    </div>
+
+    <div id="sessions-list"></div>
+
+    <div class="sessions-footer">
+      <button id="new-session-btn" class="btn btn-secondary" style="width:100%;font-size:.78rem">+ New session</button>
     </div>
   </aside>
 
-  <!-- ── Centre: conversational chat ── -->
+  <!-- ── Chat ── -->
   <div class="chat-panel">
-    <div class="chat-panel-header">Conversation</div>
+    <div class="panel-header">
+      <span>Conversation</span>
+      <span id="session-id-label" style="font-family:var(--mono);font-size:.68rem"></span>
+    </div>
     <div id="chat-log">
       <div class="empty-state" id="empty-state">
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="4" y="8" width="40" height="32" rx="4" stroke="currentColor" stroke-width="2"/>
-          <path d="M16 20h16M16 28h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <p>Enter a prompt and click Submit.</p>
+        <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="8" width="40" height="32" rx="4" stroke="currentColor" stroke-width="2"/><path d="M16 20h16M16 28h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <p>Select a session or submit a prompt to start.</p>
       </div>
     </div>
   </div>
 
-  <!-- ── Right: routing details ── -->
+  <!-- ── Routing panel ── -->
   <div class="routing-panel">
-    <div class="routing-panel-header">
+    <div class="panel-header">
       <span>Routing Details</span>
-      <span id="routing-badge" style="display:none;font-size:.65rem;padding:2px 8px;border-radius:20px;background:rgba(88,166,255,.15);color:var(--accent);border:1px solid rgba(88,166,255,.3);">latest</span>
+      <span id="routing-turn" style="font-size:.68rem"></span>
     </div>
     <div id="routing-body">
-      <div class="rp-empty">Routing decisions will appear here after each submission.</div>
+      <div class="rp-empty">Routing decisions will appear here.</div>
     </div>
   </div>
 </main>
 
 <script>
-  /* ── State ── */
-  let currentSessionId = null;
-  const sessions = {}; // id → [{role, content}]
+/* ── State ── */
+let currentSessionId = null;
 
-  /* ── DOM refs ── */
-  const chatLog      = document.getElementById('chat-log');
-  const promptInput  = document.getElementById('prompt-input');
-  const runBtn       = document.getElementById('run-btn');
-  const runSpinner   = document.getElementById('run-spinner');
-  const sessionsList = document.getElementById('sessions-list');
-  const llmSelect    = document.getElementById('llm-select');
-  const healthDot    = document.getElementById('health-dot');
-  const healthLabel  = document.getElementById('health-label');
-  const emptyState   = document.getElementById('empty-state');
-  const routingBody  = document.getElementById('routing-body');
-  const routingBadge = document.getElementById('routing-badge');
+/* ── DOM ── */
+const chatLog      = document.getElementById('chat-log');
+const promptInput  = document.getElementById('prompt-input');
+const runBtn       = document.getElementById('run-btn');
+const runSpinner   = document.getElementById('run-spinner');
+const sessionsList = document.getElementById('sessions-list');
+const llmSelect    = document.getElementById('llm-select');
+const healthDot    = document.getElementById('health-dot');
+const healthLabel  = document.getElementById('health-label');
+const emptyState   = document.getElementById('empty-state');
+const routingBody  = document.getElementById('routing-body');
+const routingTurn  = document.getElementById('routing-turn');
+const sessionIdLbl = document.getElementById('session-id-label');
+const sessionCount = document.getElementById('session-count');
 
-  /* ── Health check ── */
-  async function checkHealth() {
-    try {
-      const r = await fetch('/api/health');
-      healthDot.className = r.ok ? 'ok' : 'error';
-      healthLabel.textContent = r.ok ? 'API online' : 'API error';
-    } catch {
-      healthDot.className = 'error';
-      healthLabel.textContent = 'API offline';
-    }
+/* ── Health ── */
+async function checkHealth() {
+  try {
+    const r = await fetch('/api/health');
+    healthDot.className = r.ok ? 'ok' : 'error';
+    healthLabel.textContent = r.ok ? 'API online' : 'API error';
+  } catch {
+    healthDot.className = 'error';
+    healthLabel.textContent = 'API offline';
   }
-  checkHealth();
-  setInterval(checkHealth, 30_000);
+}
+checkHealth();
+setInterval(checkHealth, 30_000);
 
-  /* ── Sessions ── */
-  function createSession() {
-    const id = crypto.randomUUID();
-    sessions[id] = [];
-    currentSessionId = id;
-    renderSessionList();
+/* ── Session list ── */
+async function loadSessionList() {
+  try {
+    const r = await fetch('/api/sessions');
+    const sessions = await r.json();
+    renderSessionList(sessions);
+  } catch { /* silent */ }
+}
+
+function renderSessionList(sessions) {
+  sessionsList.innerHTML = '';
+  sessionCount.textContent = sessions.length ? `${sessions.length} saved` : '';
+  sessions.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'session-item' + (s.session_id === currentSessionId ? ' active' : '');
+    el.dataset.id = s.session_id;
+
+    const date = s.created_at ? new Date(s.created_at.replace(' ', 'T') + 'Z').toLocaleString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+
+    el.innerHTML = `
+      <div class="session-info">
+        <span class="session-id">${s.session_id.slice(0, 8)}…</span>
+        <div class="session-meta">
+          <span>${s.turns} turn${s.turns !== 1 ? 's' : ''}</span>
+          <span>${date}</span>
+        </div>
+        ${s.preview ? `<div class="session-preview">${esc(s.preview)}</div>` : ''}
+      </div>
+      <button class="pdf-btn" title="Export PDF" data-id="${s.session_id}">↓</button>
+    `;
+
+    el.addEventListener('click', (e) => {
+      if (e.target.classList.contains('pdf-btn') || e.target.closest('.pdf-btn')) return;
+      selectSession(s.session_id);
+    });
+
+    el.querySelector('.pdf-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      exportPdf(s.session_id, e.currentTarget);
+    });
+
+    sessionsList.appendChild(el);
+  });
+}
+
+async function selectSession(id) {
+  currentSessionId = id;
+  sessionIdLbl.textContent = id.slice(0, 8) + '…';
+  document.querySelectorAll('.session-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.id === id);
+  });
+  try {
+    const r = await fetch(`/api/session/${id}`);
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    renderChat(data.messages);
+    // Show last routing decision in panel
+    const lastAgent = [...data.messages].reverse().find(m => m.role === 'agent');
+    if (lastAgent?.decision) {
+      renderRoutingPanel(lastAgent.decision, lastAgent.qc || {}, data.messages.filter(m => m.role === 'user').length);
+    } else {
+      clearRoutingPanel();
+    }
+  } catch {
     renderChat([]);
-    clearRoutingPanel();
-    return id;
   }
+}
 
-  function renderSessionList() {
-    sessionsList.innerHTML = '';
-    Object.keys(sessions).reverse().forEach(id => {
-      const el = document.createElement('div');
-      el.className = 'session-item' + (id === currentSessionId ? ' active' : '');
-      el.textContent = id.slice(0, 8) + '…';
-      el.title = id;
-      el.addEventListener('click', () => {
-        currentSessionId = id;
-        renderSessionList();
-        renderChat(sessions[id]);
-      });
-      sessionsList.appendChild(el);
-    });
-  }
+/* ── Chat ── */
+function renderChat(msgs) {
+  chatLog.innerHTML = '';
+  if (!msgs || msgs.length === 0) { chatLog.appendChild(emptyState); return; }
+  msgs.forEach(m => appendMsg(m.role, m.content));
+}
 
-  /* ── Chat ── */
-  function renderChat(msgs) {
-    chatLog.innerHTML = '';
-    if (msgs.length === 0) { chatLog.appendChild(emptyState); return; }
-    msgs.forEach(m => appendMsg(m.role, m.content));
-  }
+function appendMsg(role, content) {
+  if (emptyState.parentNode === chatLog) chatLog.removeChild(emptyState);
+  const wrapper = document.createElement('div');
+  wrapper.className = `msg ${role}`;
+  const label = document.createElement('div');
+  label.className = 'msg-label';
+  label.textContent = role === 'user' ? 'You' : role === 'agent' ? 'Supervisor' : 'Error';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+  wrapper.appendChild(label);
+  wrapper.appendChild(bubble);
+  chatLog.appendChild(wrapper);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
 
-  function appendMsg(role, content) {
-    if (emptyState.parentNode === chatLog) chatLog.removeChild(emptyState);
-    const wrapper = document.createElement('div');
-    wrapper.className = `msg ${role}`;
-    const label = document.createElement('div');
-    label.className = 'msg-label';
-    label.textContent = role === 'user' ? 'You' : role === 'agent' ? 'Supervisor' : 'Error';
-    const bubble = document.createElement('div');
-    bubble.className = 'msg-bubble';
-    bubble.textContent = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
-    wrapper.appendChild(label);
-    wrapper.appendChild(bubble);
-    chatLog.appendChild(wrapper);
-    chatLog.scrollTop = chatLog.scrollHeight;
-  }
+/* ── Routing panel ── */
+function clearRoutingPanel() {
+  routingTurn.textContent = '';
+  routingBody.innerHTML = '<div class="rp-empty">Routing decisions will appear here.</div>';
+}
 
-  /* ── Routing panel ── */
-  function clearRoutingPanel() {
-    routingBadge.style.display = 'none';
-    routingBody.innerHTML = '<div class="rp-empty">Routing decisions will appear here after each submission.</div>';
-  }
+function renderRoutingPanel(decision, qc, turnNum) {
+  routingTurn.textContent = turnNum ? `turn ${turnNum}` : '';
+  routingBody.innerHTML = '';
 
-  function renderRoutingPanel(decision, qc) {
-    routingBadge.style.display = 'inline-block';
-    routingBody.innerHTML = '';
-
-    // Agents
-    const agents = decision.agents_needed || [];
-    addSection('Agents Routed', () => {
-      const chips = document.createElement('div');
-      chips.className = 'agent-chips';
-      if (agents.length === 0) {
+  const agents = decision.agents_needed || [];
+  addRpSection('Agents Routed', () => {
+    const chips = document.createElement('div');
+    chips.className = 'agent-chips';
+    if (!agents.length) {
+      chips.innerHTML = '<span class="agent-chip none">none — conversational</span>';
+    } else {
+      agents.forEach(a => {
         const c = document.createElement('span');
-        c.className = 'agent-chip none';
-        c.textContent = 'none (conversational)';
+        c.className = 'agent-chip' + (decision.run_parallel ? ' parallel' : '');
+        c.textContent = a;
         chips.appendChild(c);
-      } else {
-        agents.forEach(a => {
-          const c = document.createElement('span');
-          c.className = 'agent-chip' + (decision.run_parallel ? ' parallel' : '');
-          c.textContent = a;
-          chips.appendChild(c);
-        });
-      }
-      return chips;
-    });
-
-    addDivider();
-
-    // Tasks
-    const tasks = decision.tasks || {};
-    if (Object.keys(tasks).length > 0) {
-      addSection('Tasks', () => {
-        const wrap = document.createElement('div');
-        Object.entries(tasks).forEach(([agent, desc]) => {
-          const item = document.createElement('div');
-          item.className = 'task-item';
-          item.innerHTML = `<div class="task-agent">${esc(agent)}</div><div class="task-desc">${esc(desc)}</div>`;
-          wrap.appendChild(item);
-        });
-        return wrap;
       });
-      addDivider();
     }
+    return chips;
+  });
 
-    // Reasoning
-    if (decision.reasoning) {
-      addSection('Reasoning', () => {
-        const d = document.createElement('div');
-        d.className = 'rp-value';
-        d.textContent = decision.reasoning;
-        return d;
-      });
-      addDivider();
-    }
-
-    // Next step
-    if (decision.next_step) {
-      addSection('Next Step', () => {
-        const d = document.createElement('div');
-        d.className = 'rp-value';
-        d.textContent = decision.next_step;
-        return d;
-      });
-      addDivider();
-    }
-
-    // QC
-    addSection('QC', () => {
+  const tasks = decision.tasks || {};
+  if (Object.keys(tasks).length) {
+    addRpDivider();
+    addRpSection('Tasks', () => {
       const wrap = document.createElement('div');
-      const status = document.createElement('div');
-      status.className = qc.passed ? 'qc-pass' : 'qc-warn';
-      status.textContent = qc.passed ? '✔ Passed' : '⚠ Failed';
-      wrap.appendChild(status);
-      (qc.warnings || []).forEach(w => {
-        const item = document.createElement('div');
-        item.className = 'qc-item qc-warn';
-        item.textContent = '· ' + w;
-        wrap.appendChild(item);
-      });
-      (qc.suggestions || []).forEach(s => {
-        const item = document.createElement('div');
-        item.className = 'qc-item';
-        item.style.color = 'var(--muted)';
-        item.textContent = '→ ' + s;
-        wrap.appendChild(item);
+      Object.entries(tasks).forEach(([agent, desc]) => {
+        wrap.innerHTML += `<div class="task-item"><div class="task-agent">${esc(agent)}</div><div class="task-desc">${esc(desc)}</div></div>`;
       });
       return wrap;
     });
   }
 
-  function addSection(label, contentFn) {
-    const sec = document.createElement('div');
-    sec.className = 'rp-section';
-    const lbl = document.createElement('div');
-    lbl.className = 'rp-label';
-    lbl.textContent = label;
-    sec.appendChild(lbl);
-    sec.appendChild(contentFn());
-    routingBody.appendChild(sec);
+  if (decision.reasoning) {
+    addRpDivider();
+    addRpSection('Reasoning', () => { const d = document.createElement('div'); d.className = 'rp-value'; d.textContent = decision.reasoning; return d; });
   }
 
-  function addDivider() {
-    const hr = document.createElement('hr');
-    hr.className = 'rp-divider';
-    routingBody.appendChild(hr);
+  if (decision.next_step) {
+    addRpDivider();
+    addRpSection('Next Step', () => { const d = document.createElement('div'); d.className = 'rp-value'; d.textContent = decision.next_step; return d; });
   }
 
-  function esc(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  /* ── Submit ── */
-  runBtn.addEventListener('click', submitPrompt);
-  promptInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitPrompt();
+  addRpDivider();
+  addRpSection('QC', () => {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `<div class="${qc.passed ? 'qc-pass' : 'qc-warn'}">${qc.passed ? '✔ Passed' : '⚠ Failed'}</div>`;
+    (qc.warnings || []).forEach(w => wrap.innerHTML += `<div class="qc-item qc-warn">· ${esc(w)}</div>`);
+    (qc.suggestions || []).forEach(s => wrap.innerHTML += `<div class="qc-item" style="color:var(--muted)">→ ${esc(s)}</div>`);
+    return wrap;
   });
+}
 
-  async function submitPrompt() {
-    const text = promptInput.value.trim();
-    if (!text) return;
-    if (!currentSessionId) createSession();
+function addRpSection(label, contentFn) {
+  const sec = document.createElement('div');
+  sec.className = 'rp-section';
+  sec.innerHTML = `<div class="rp-label">${label}</div>`;
+  sec.appendChild(contentFn());
+  routingBody.appendChild(sec);
+}
+function addRpDivider() { const hr = document.createElement('hr'); hr.className = 'rp-div'; routingBody.appendChild(hr); }
 
-    const sid = currentSessionId;
-    runBtn.disabled = true;
-    runSpinner.classList.add('visible');
-    promptInput.value = '';
-
-    sessions[sid].push({ role: 'user', content: text });
-    appendMsg('user', text);
-
-    try {
-      const res = await fetch('/api/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sid, user_input: text, llm_choice: llmSelect.value }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        const errMsg = data.detail || 'Unknown error';
-        sessions[sid].push({ role: 'error', content: errMsg });
-        appendMsg('error', errMsg);
-      } else {
-        // Conversational reply in chat
-        const msg = data.decision?.message || '(no message)';
-        sessions[sid].push({ role: 'agent', content: msg });
-        appendMsg('agent', msg);
-
-        // Routing details in right panel
-        renderRoutingPanel(data.decision, data.qc);
-      }
-    } catch (err) {
-      appendMsg('error', 'Network error: ' + err.message);
-    } finally {
-      runBtn.disabled = false;
-      runSpinner.classList.remove('visible');
+/* ── PDF export ── */
+async function exportPdf(sessionId, btn) {
+  btn.textContent = '…';
+  btn.classList.add('loading');
+  btn.disabled = true;
+  try {
+    const r = await fetch(`/api/session/${sessionId}/report`, { method: 'POST' });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      alert('PDF export failed: ' + (err.detail || r.statusText));
+      return;
     }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `proteoagent-${sessionId.slice(0, 8)}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('PDF export error: ' + e.message);
+  } finally {
+    btn.textContent = '↓';
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+/* ── Submit ── */
+runBtn.addEventListener('click', submitPrompt);
+promptInput.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitPrompt(); });
+
+async function submitPrompt() {
+  const text = promptInput.value.trim();
+  if (!text) return;
+
+  if (!currentSessionId) {
+    currentSessionId = crypto.randomUUID();
+    sessionIdLbl.textContent = currentSessionId.slice(0, 8) + '…';
   }
 
-  /* ── New session ── */
-  document.getElementById('new-session-btn').addEventListener('click', () => {
-    createSession();
-    promptInput.focus();
-  });
+  const sid = currentSessionId;
+  runBtn.disabled = true;
+  runSpinner.classList.add('visible');
+  promptInput.value = '';
 
-  createSession();
+  appendMsg('user', text);
+
+  try {
+    const res = await fetch('/api/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sid, user_input: text, llm_choice: llmSelect.value }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      appendMsg('error', data.detail || 'Unknown error');
+    } else {
+      const msg = data.decision?.message || '(no message)';
+      appendMsg('agent', msg);
+
+      const turnNum = chatLog.querySelectorAll('.msg.user').length;
+      renderRoutingPanel(data.decision, data.qc, turnNum);
+    }
+  } catch (e) {
+    appendMsg('error', 'Network error: ' + e.message);
+  } finally {
+    runBtn.disabled = false;
+    runSpinner.classList.remove('visible');
+    // Refresh session list to show updated turn count
+    loadSessionList();
+  }
+}
+
+/* ── New session ── */
+document.getElementById('new-session-btn').addEventListener('click', () => {
+  currentSessionId = crypto.randomUUID();
+  sessionIdLbl.textContent = currentSessionId.slice(0, 8) + '…';
+  renderChat([]);
+  clearRoutingPanel();
+  document.querySelectorAll('.session-item').forEach(el => el.classList.remove('active'));
+  promptInput.focus();
+});
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ── Init ── */
+loadSessionList();
 </script>
 </body>
 </html>
