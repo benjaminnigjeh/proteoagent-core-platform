@@ -9,6 +9,7 @@ env:
   DOCKERHUB_USERNAME: benjaminnourinigjeh
   AGENTS_IMAGE:       benjaminnourinigjeh/proteoagent-agents
   NGINX_IMAGE:        benjaminnourinigjeh/proteoagent-nginx
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   push:
@@ -19,7 +20,7 @@ jobs:
 
       - name: Docker meta — agents
         id: meta-agents
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.AGENTS_IMAGE }}
           tags: |
@@ -30,7 +31,7 @@ jobs:
 
       - name: Docker meta — nginx
         id: meta-nginx
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.NGINX_IMAGE }}
           tags: |
