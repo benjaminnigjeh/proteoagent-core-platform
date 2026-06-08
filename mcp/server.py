@@ -10,7 +10,6 @@ Modes:
 import argparse
 import asyncio
 import json
-import sys
 
 import mcp.types as types
 from mcp.server import Server
