@@ -9,6 +9,7 @@ env:
   DOCKERHUB_USERNAME: benjaminnourinigjeh
   AGENTS_IMAGE:       benjaminnourinigjeh/proteoagent-agents
   NGINX_IMAGE:        benjaminnourinigjeh/proteoagent-nginx
+  MCP_IMAGE:          benjaminnourinigjeh/proteoagent-mcp
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -34,6 +35,17 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ${{ env.NGINX_IMAGE }}
+          tags: |
+            type=sha,prefix=sha-
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Docker meta — mcp
+        id: meta-mcp
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.MCP_IMAGE }}
           tags: |
             type=sha,prefix=sha-
             type=ref,event=branch
@@ -71,6 +83,17 @@ jobs:
           push:      true
           tags:      ${{ steps.meta-nginx.outputs.tags }}
           labels:    ${{ steps.meta-nginx.outputs.labels }}
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+      - name: Build & push mcp
+        uses: docker/build-push-action@v6
+        with:
+          context:   ./mcp
+          platforms: linux/amd64,linux/arm64
+          push:      true
+          tags:      ${{ steps.meta-mcp.outputs.tags }}
+          labels:    ${{ steps.meta-mcp.outputs.labels }}
           cache-from: type=gha
           cache-to:   type=gha,mode=max
 

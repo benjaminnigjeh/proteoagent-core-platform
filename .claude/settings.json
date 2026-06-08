@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "proteoagent-memory": {
+      "command": "python",
+      "args": ["mcp/server.py"],
+      "env": {
+        "DB_PATH": "data/sessions.db"
+      }
+    }
+  }
+}

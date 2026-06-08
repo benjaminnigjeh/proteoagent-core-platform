@@ -25,8 +25,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r agents/requirements-dev.txt
 
-      - name: Flake8
+      - name: Flake8 — agents
         run: flake8 agents/
+
+      - name: Flake8 — mcp
+        run: flake8 mcp/
 
   test:
     name: Unit tests
@@ -91,6 +94,15 @@ jobs:
           cache-from: type=gha
           cache-to:   type=gha,mode=max
 
+      - name: Build mcp image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./mcp
+          push: false
+          tags: proteoagent-mcp:ci
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
   health-check:
     name: Compose health check
     runs-on: ubuntu-latest
@@ -102,7 +114,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: dummy
         run: |
-          docker compose up -d --build nginx agents
+          docker compose up -d --build nginx agents mcp
           echo "Waiting for agents health…"
           for i in $(seq 1 30); do
             STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q agents) 2>/dev/null || echo "starting")
@@ -111,6 +123,14 @@ jobs:
             sleep 4
           done
           curl --fail http://localhost/api/health
+          echo "Waiting for mcp health…"
+          for i in $(seq 1 18); do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q mcp) 2>/dev/null || echo "starting")
+            echo "  attempt $i: $STATUS"
+            [ "$STATUS" = "healthy" ] && break
+            sleep 5
+          done
+          [ "$STATUS" = "healthy" ] || (echo "mcp did not become healthy" && exit 1)
 
       - name: Tear down
         if: always()

@@ -41,6 +41,31 @@ services:
     networks:
       - backend
 
+  # ── MCP memory server ─────────────────────────────────────────────────────
+  mcp:
+    build:
+      context: ./mcp
+    image: ${DOCKERHUB_USERNAME:-benjaminnourinigjeh}/proteoagent-mcp:${IMAGE_TAG:-latest}
+    expose:
+      - "8001"
+    environment:
+      - DB_PATH=/data/sessions.db
+    volumes:
+      - session_data:/data
+    depends_on:
+      agents:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - backend
+
   # ── Ollama local LLM ───────────────────────────────────────────────────────
   ollama:
     image: ollama/ollama:latest
