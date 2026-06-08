@@ -62,7 +62,10 @@ def test_run_supervisor_returns_decision_and_history():
     assert isinstance(history[1], AIMessage)
 
 def test_run_supervisor_history_is_extended():
-    payload = {"message": "ok", "agents_needed": [], "parallel_pairs": [], "run_parallel": False, "tasks": {}, "reasoning": "chat", "next_step": ""}
+    payload = {
+        "message": "ok", "agents_needed": [], "parallel_pairs": [],
+        "run_parallel": False, "tasks": {}, "reasoning": "chat", "next_step": "",
+    }
     prior = [HumanMessage(content="prior"), AIMessage(content="reply")]
     _, history = run_supervisor("follow-up", _make_llm(payload), history=prior)
     assert len(history) == 4
@@ -76,7 +79,10 @@ def test_run_supervisor_fallback_on_bad_json():
 
 def test_run_supervisor_list_content_joined():
     llm = MagicMock()
-    payload = {"message": "ok", "agents_needed": ["proxai"], "parallel_pairs": [], "run_parallel": False, "tasks": {"proxai": "gradient"}, "reasoning": "r", "next_step": "n"}
+    payload = {
+        "message": "ok", "agents_needed": ["proxai"], "parallel_pairs": [],
+        "run_parallel": False, "tasks": {"proxai": "gradient"}, "reasoning": "r", "next_step": "n",
+    }
     llm.invoke.return_value = AIMessage(content=[{"text": json.dumps(payload)}])
     decision, _ = run_supervisor("feature discovery", llm)
     assert decision["agents_needed"] == ["proxai"]

@@ -1,5 +1,4 @@
 import json
-import pytest
 from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
 
@@ -112,7 +111,10 @@ def test_run_continues_existing_session():
          patch("api.run_supervisor", return_value=(_GOOD_DECISION, [])):
         r1 = client.post("/api/run", json={"user_input": "Process my RAW file please", "llm_choice": "ollama"})
         sid = r1.json()["session_id"]
-        r2 = client.post("/api/run", json={"session_id": sid, "user_input": "Now run deconvolution please", "llm_choice": "ollama"})
+        r2 = client.post(
+            "/api/run",
+            json={"session_id": sid, "user_input": "Now run deconvolution please", "llm_choice": "ollama"},
+        )
 
     assert r2.json()["session_id"] == sid
     session = client.get(f"/api/session/{sid}").json()
@@ -136,7 +138,8 @@ def test_report_returns_pdf():
     sid = run_r.json()["session_id"]
 
     with patch("api.generate_session_pdf") as mock_pdf:
-        import tempfile, os
+        import os
+        import tempfile
         tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
         tmp.write(b"%PDF-1.4 fake pdf content")
         tmp.close()

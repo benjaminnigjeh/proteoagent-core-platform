@@ -6,3 +6,5 @@ exclude = .venv,__pycache__
 # flask_app.py has an inline HTML/JS template with unavoidably long lines
 per-file-ignores =
     flask_app.py:E501
+    agents/supervisor_agent.py:E501
+    agents/tests/test_*.py:E302,E501
