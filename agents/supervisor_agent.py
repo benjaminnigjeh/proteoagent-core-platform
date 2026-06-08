@@ -36,23 +36,22 @@ If the request is ambiguous, ask one clarifying question.
 If the user asks for the full pipeline, route to all agents in the correct order."""
 
 
-_ROUTING_TEMPLATE = """Analyze this user request and decide which agents are needed.
+_ROUTING_TEMPLATE = """Analyze this user request. Write a conversational reply to the user AND decide which agents are needed.
 
 User request: {user_input}
 
 Respond in this exact JSON format (no extra text):
 {{
-  "agents_needed": ["databank"],
+  "message": "Conversational reply directly to the user (1-3 sentences). If this is a task, confirm what you are routing. If conversational, answer naturally. If ambiguous, ask one clarifying question.",
+  "agents_needed": [],
   "parallel_pairs": [],
   "run_parallel": false,
-  "tasks": {{
-    "databank": "specific task description"
-  }},
-  "reasoning": "brief explanation",
-  "next_step": "suggested next step after these agents complete"
+  "tasks": {{}},
+  "reasoning": "Internal reasoning for your routing decision",
+  "next_step": "What should happen after these agents complete (or what the user should do next)"
 }}
 
-Only include agents that are relevant to the request."""
+Only include agents relevant to the request. If the request is conversational or informational, leave agents_needed as []."""
 
 
 def build_llm(llm_choice: str, anthropic_api_key: Optional[str] = None):
@@ -100,6 +99,7 @@ def run_supervisor(user_input: str, llm, history: list | None = None) -> tuple[d
 
 def _fallback(user_input: str) -> dict:
     return {
+        "message": "I received your request but had trouble parsing my routing decision. I've defaulted to the databank agent — please review its output and re-submit if needed.",
         "agents_needed": ["databank"],
         "parallel_pairs": [],
         "run_parallel": False,
