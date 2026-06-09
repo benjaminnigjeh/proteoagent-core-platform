@@ -34,7 +34,8 @@ def test_list_sessions_empty():
 
 def test_list_sessions_after_run():
     with patch("api.build_llm", return_value=MagicMock()), \
-         patch("api.run_supervisor", return_value=(_GOOD_DECISION, [])):
+         patch("api.run_supervisor", return_value=(_GOOD_DECISION, [])), \
+         patch("api._execute_agents", return_value="Agent result."):
         client.post("/api/run", json={"user_input": "Process my RAW file please", "llm_choice": "ollama"})
 
     r = client.get("/api/sessions")
@@ -53,7 +54,8 @@ def test_get_session_not_found():
 
 def test_get_session_after_run():
     with patch("api.build_llm", return_value=MagicMock()), \
-         patch("api.run_supervisor", return_value=(_GOOD_DECISION, [])):
+         patch("api.run_supervisor", return_value=(_GOOD_DECISION, [])), \
+         patch("api._execute_agents", return_value="Agent result."):
         run_r = client.post("/api/run", json={"user_input": "Process my RAW file please", "llm_choice": "ollama"})
     sid = run_r.json()["session_id"]
 
@@ -67,7 +69,8 @@ def test_get_session_after_run():
 
 def test_delete_session():
     with patch("api.build_llm", return_value=MagicMock()), \
-         patch("api.run_supervisor", return_value=(_GOOD_DECISION, [])):
+         patch("api.run_supervisor", return_value=(_GOOD_DECISION, [])), \
+         patch("api._execute_agents", return_value="Agent result."):
         run_r = client.post("/api/run", json={"user_input": "Process my RAW file please", "llm_choice": "ollama"})
     sid = run_r.json()["session_id"]
 
@@ -95,7 +98,8 @@ def test_run_unknown_llm_blocked():
 
 def test_run_success_returns_expected_fields():
     with patch("api.build_llm", return_value=MagicMock()), \
-         patch("api.run_supervisor", return_value=(_GOOD_DECISION, [])):
+         patch("api.run_supervisor", return_value=(_GOOD_DECISION, [])), \
+         patch("api._execute_agents", return_value="Agent result."):
         r = client.post("/api/run", json={"user_input": "Process my RAW file please", "llm_choice": "ollama"})
 
     assert r.status_code == 200
@@ -108,7 +112,8 @@ def test_run_success_returns_expected_fields():
 def test_run_continues_existing_session():
     sid = None
     with patch("api.build_llm", return_value=MagicMock()), \
-         patch("api.run_supervisor", return_value=(_GOOD_DECISION, [])):
+         patch("api.run_supervisor", return_value=(_GOOD_DECISION, [])), \
+         patch("api._execute_agents", return_value="Agent result."):
         r1 = client.post("/api/run", json={"user_input": "Process my RAW file please", "llm_choice": "ollama"})
         sid = r1.json()["session_id"]
         r2 = client.post(
@@ -133,7 +138,8 @@ def test_report_returns_pdf():
     with patch("api.build_llm", return_value=MagicMock()), \
          patch("api.run_supervisor", return_value=(_GOOD_DECISION, [
              HumanMessage(content="test"), AIMessage(content=json.dumps(_GOOD_DECISION))
-         ])):
+         ])), \
+         patch("api._execute_agents", return_value="Agent result."):
         run_r = client.post("/api/run", json={"user_input": "Process my RAW file please", "llm_choice": "ollama"})
     sid = run_r.json()["session_id"]
 
