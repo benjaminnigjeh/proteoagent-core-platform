@@ -135,10 +135,9 @@ def test_report_not_found():
 def test_report_returns_pdf():
     from langchain_core.messages import HumanMessage, AIMessage
 
+    msgs = [HumanMessage(content="test"), AIMessage(content=json.dumps(_GOOD_DECISION))]
     with patch("api.build_llm", return_value=MagicMock()), \
-         patch("api.run_supervisor", return_value=(_GOOD_DECISION, [
-             HumanMessage(content="test"), AIMessage(content=json.dumps(_GOOD_DECISION))
-         ])), \
+         patch("api.run_supervisor", return_value=(_GOOD_DECISION, msgs)), \
          patch("api._execute_agents", return_value="Agent result."):
         run_r = client.post("/api/run", json={"user_input": "Process my RAW file please", "llm_choice": "ollama"})
     sid = run_r.json()["session_id"]
