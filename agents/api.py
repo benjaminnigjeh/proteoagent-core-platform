@@ -19,13 +19,47 @@ from pydantic import BaseModel
 from auxiliary_agents import classify_error, generate_session_pdf, run_guardrail, run_qc
 from supervisor_agent import build_llm, run_supervisor
 
-DB_PATH = os.environ.get("SESSION_DB_PATH", "/data/sessions.db")
+DB_PATH       = os.environ.get("SESSION_DB_PATH",    "/data/sessions.db")
+AGENT_GRAPH_DB = os.environ.get("AGENT_GRAPH_DB_PATH", "/data/agent_graph.db")
 
 
 def get_db() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def _execute_agents(session_id: str, user_input: str, llm, decision: dict) -> str:
+    """Run the specialist agent graph and return the final summary."""
+    from multi_agent import build_graph
+    from langgraph.checkpoint.sqlite import SqliteSaver
+
+    db_dir = os.path.dirname(AGENT_GRAPH_DB)
+    if db_dir:
+        os.makedirs(db_dir, exist_ok=True)
+    conn = sqlite3.connect(AGENT_GRAPH_DB, check_same_thread=False)
+    try:
+        checkpointer = SqliteSaver(conn)
+        graph = build_graph(llm, checkpointer)
+        result = graph.invoke(
+            {
+                "messages":              [HumanMessage(content=user_input)],
+                "user_input":            user_input,
+                "supervisor_decision":   json.dumps(decision),
+                "databank_result":       "",
+                "deconvolution_result":  "",
+                "proxai_result":         "",
+                "bioinformatics_result": "",
+                "final_summary":         "",
+                "run_parallel":          decision.get("run_parallel", False),
+            },
+            config={"configurable": {"thread_id": session_id}},
+        )
+        return result.get("final_summary") or decision.get("message", "")
+    except Exception as exc:
+        return f"Agent execution error: {exc}"
+    finally:
+        conn.close()
 
 
 @asynccontextmanager
@@ -151,6 +185,10 @@ def run_agent(req: RunRequest):
     except Exception as exc:
         err = classify_error(exc)
         raise HTTPException(status_code=500, detail=err["user_message"])
+
+    if decision.get("agents_needed"):
+        summary = _execute_agents(session_id, guardrail["cleaned_input"], llm, decision)
+        decision["message"] = summary
 
     qc = run_qc(decision)
     _save_turn(session_id, updated_history, guardrail["cleaned_input"], decision, qc)

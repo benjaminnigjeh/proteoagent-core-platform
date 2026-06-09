@@ -8,3 +8,7 @@ per-file-ignores =
     flask_app.py:E501
     agents/supervisor_agent.py:E501
     agents/tests/test_*.py:E302,E501
+    agents/multi_agent.py:E501,W503
+    agents/*_backend.py:E501,E741,W503
+    agents/*_specialist.py:E501,W503
+    agents/raw_worker.py:E501,W503

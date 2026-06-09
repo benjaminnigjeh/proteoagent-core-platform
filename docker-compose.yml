@@ -26,6 +26,7 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - OLLAMA_BASE_URL=http://ollama:11434
       - SESSION_DB_PATH=/data/sessions.db
+      - AGENT_GRAPH_DB_PATH=/data/agent_graph.db
     volumes:
       - session_data:/data
     depends_on:

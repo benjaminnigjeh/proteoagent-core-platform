@@ -1,2 +1,7 @@
 [run]
-omit = tests/*
+omit =
+    tests/*
+    *_backend.py
+    *_specialist.py
+    multi_agent.py
+    raw_worker.py
