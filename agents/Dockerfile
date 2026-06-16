@@ -16,7 +16,7 @@ WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
 
-COPY api.py supervisor_agent.py auxiliary_agents.py ./
+COPY api.py supervisor_agent.py auxiliary_agents.py multi_agent.py databank_specialist.py deconvolution_specialist.py proxai_specialist.py bioinformatic_specialist.py databank_backend.py deconvolution_backend.py proxai_backend.py bioinformatic_backend.py raw_worker.py ./
 
 RUN mkdir -p /data/reports && chown -R appuser:appuser /data
 
