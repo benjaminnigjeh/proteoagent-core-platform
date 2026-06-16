@@ -277,10 +277,11 @@ async function selectSession(id) {
 function renderChat(msgs) {
   chatLog.innerHTML = '';
   if (!msgs || msgs.length === 0) { chatLog.appendChild(emptyState); return; }
-  msgs.forEach(m => appendMsg(m.role, m.content));
+  msgs.forEach(m => appendMsg(m.role, m.content, 'none'));
+  chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-function appendMsg(role, content) {
+function appendMsg(role, content, scroll = 'bottom') {
   if (emptyState.parentNode === chatLog) chatLog.removeChild(emptyState);
   const wrapper = document.createElement('div');
   wrapper.className = `msg ${role}`;
@@ -293,7 +294,12 @@ function appendMsg(role, content) {
   wrapper.appendChild(label);
   wrapper.appendChild(bubble);
   chatLog.appendChild(wrapper);
-  chatLog.scrollTop = chatLog.scrollHeight;
+  if (scroll === 'top') {
+    wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else if (scroll === 'bottom') {
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+  return wrapper;
 }
 
 /* ── Routing panel ── */
@@ -412,7 +418,7 @@ async function submitPrompt() {
   runSpinner.classList.add('visible');
   promptInput.value = '';
 
-  appendMsg('user', text);
+  appendMsg('user', text, 'top');
 
   try {
     const res = await fetch('/api/run', {
